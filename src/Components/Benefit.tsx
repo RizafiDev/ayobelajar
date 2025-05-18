@@ -2,7 +2,10 @@ import goal from "../assets/heading/goal.svg";
 import { CheckBadgeIcon as CheckIcon } from "@heroicons/react/24/solid";
 function Benefit() {
   return (
-    <section className="container flex items-center  w-full mx-auto px-6 md:px-28 text-textblack py-16">
+    <section
+      id="benefit"
+      className="container flex items-center  w-full mx-auto px-6 md:px-28 text-textblack py-16"
+    >
       <div className="wrapper w-full items-center flex justify-between gap-6">
         <div
           data-aos="fade-right"

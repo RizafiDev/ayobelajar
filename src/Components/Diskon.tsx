@@ -1,8 +1,12 @@
 import Orb from "../ui/Orb/Orb";
+import Countdown from "./ui/Countdown";
 
 function Diskon() {
   return (
-    <div className="container px-6 bg-bgblack md:px-28 w-full mx-auto py-8">
+    <section
+      id="diskon"
+      className="container px-6 bg-bgblack md:px-28 w-full mx-auto py-8"
+    >
       <div className="text">
         <p className="text-5xl font-bold text-white">
           Diskon Spesial Kelas <br />
@@ -16,7 +20,8 @@ function Diskon() {
         hue={0}
         forceHoverState={false}
       />
-    </div>
+      <Countdown />
+    </section>
   );
 }
 export default Diskon;

@@ -4,7 +4,10 @@ import sinta from "../assets/profile/sinta.svg";
 import { RiStarSmileFill } from "@remixicon/react";
 function Rating() {
   return (
-    <section className="container flex flex-col gap-12 items-center justify-center w-full mx-auto px-6 md:px-28 text-textblack py-16">
+    <section
+      id="rating"
+      className="container flex flex-col gap-12 items-center justify-center w-full mx-auto px-6 md:px-28 text-textblack py-16"
+    >
       <div
         data-aos="fade-up"
         data-aos-once="false"
@@ -23,7 +26,13 @@ function Rating() {
       </div>
       <div className="price-wrapper ">
         <ul className="flex items-center justify-center gap-6">
-          <li>
+          <li
+            data-aos="fade-right"
+            data-aos-once="false"
+            data-aos-delay="500"
+            data-aos-easing="ease-in-out"
+            data-aos-duration="1000"
+          >
             <div className="profile flex items-center gap-4 bg-primary/5 py-6 px-9 rounded-t-2xl border-l border-r border-t border-textblack/20">
               <img src={rizky} alt="" />
               <div className="data-user">
@@ -48,9 +57,15 @@ function Rating() {
               </p>
             </div>
           </li>
-          <li>
+          <li
+            data-aos="fade-up"
+            data-aos-once="false"
+            data-aos-delay="100"
+            data-aos-easing="ease-in-out"
+            data-aos-duration="1000"
+          >
             <div className="profile flex items-center gap-4 bg-primary/5 py-6 px-9 rounded-t-2xl border-l border-r border-t border-textblack/20">
-              <img src={rizky} alt="" />
+              <img src={nadia} alt="" />
               <div className="data-user">
                 <p className="font-semibold text-lg">Nadia</p>
                 <p className="font-normal text-sm">Mahasiswa</p>
@@ -73,9 +88,15 @@ function Rating() {
               </p>
             </div>
           </li>
-          <li>
+          <li
+            data-aos="fade-left"
+            data-aos-once="false"
+            data-aos-delay="500"
+            data-aos-easing="ease-in-out"
+            data-aos-duration="1000"
+          >
             <div className="profile flex items-center gap-4 bg-primary/5 py-6 px-9 rounded-t-2xl border-l border-r border-t border-textblack/20">
-              <img src={rizky} alt="" />
+              <img src={sinta} alt="" />
               <div className="data-user">
                 <p className="font-semibold text-lg">Sinta</p>
                 <p className="font-normal text-sm">Customer Service</p>

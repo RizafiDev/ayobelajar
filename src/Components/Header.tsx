@@ -1,15 +1,16 @@
-import React from "react";
 import ElipsBackground from "../assets/heading/elipse.svg";
 import Learning from "../assets/heading/learning.svg";
 import SplitText from "../ui/SplitText/SplitText";
-import BlurText from "../ui/BlurText/BlurText";
 import FadeContent from "../ui/FadeContent/FadeContent";
 import { easeCubicOut } from "d3-ease";
 import ClickSpark from "../ui/ClickSpark/ClickSpark";
 
 function Header() {
   return (
-    <header className="relative w-full overflow-hidden min-h-screen">
+    <header
+      id="header"
+      className="relative w-full overflow-hidden min-h-screen"
+    >
       <div className="absolute top-0 left-0 w-full h-full">
         <img
           src={ElipsBackground}

@@ -11,7 +11,10 @@ import { ChevronDoubleRightIcon as BackIcon } from "@heroicons/react/24/solid";
 
 function Kelas() {
   return (
-    <section className="container px-6 md:px-28 w-full mx-auto py-16 gap-6 flex flex-col items-start text-textblack">
+    <section
+      id="kelas"
+      className="container px-6 md:px-28 w-full mx-auto py-16 gap-6 flex flex-col items-start text-textblack"
+    >
       <div
         data-aos="fade-up"
         data-aos-once="false"

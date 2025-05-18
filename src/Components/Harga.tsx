@@ -1,7 +1,10 @@
 import { CheckIcon } from "@heroicons/react/24/solid";
 function Harga() {
   return (
-    <section className="container flex flex-col gap-12 items-center justify-center w-full mx-auto px-6 md:px-28 text-textblack py-16">
+    <section
+      id="harga"
+      className="container flex flex-col gap-12 items-center justify-center w-full mx-auto px-6 md:px-28 text-textblack py-16"
+    >
       <div
         data-aos="fade-up"
         data-aos-once="false"

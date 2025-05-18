@@ -1,21 +1,21 @@
 import React, { useRef, useEffect, useCallback } from "react";
 
 interface ClickSparkProps {
-  sparkColor?: string;
-  sparkSize?: number;
-  sparkRadius?: number;
-  sparkCount?: number;
-  duration?: number;
-  easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out";
-  extraScale?: number;
-  children?: React.ReactNode;
+  sparkColor?: string; // Warna garis spark
+  sparkSize?: number; // Panjang garis spark awal
+  sparkRadius?: number; // Jarak maksimal spark menjauh dari titik klik
+  sparkCount?: number; // Jumlah garis spark yang muncul setiap klik
+  duration?: number; // Durasi animasi spark dalam milidetik
+  easing?: "linear" | "ease-in" | "ease-out" | "ease-in-out"; // Fungsi easing untuk animasi
+  extraScale?: number; // Skala tambahan untuk jarak spark
+  children?: React.ReactNode; // Elemen anak yang akan dibungkus oleh komponen ini
 }
 
 interface Spark {
-  x: number;
-  y: number;
-  angle: number;
-  startTime: number;
+  x: number; // Posisi x awal spark (titik klik)
+  y: number; // Posisi y awal spark (titik klik)
+  angle: number; // Arah gerak spark dalam radian
+  startTime: number; // Timestamp awal animasi spark
 }
 
 const ClickSpark: React.FC<ClickSparkProps> = ({
@@ -28,10 +28,16 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
   extraScale = 1.0,
   children,
 }) => {
+  // Ref ke elemen canvas untuk menggambar sparks
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const sparksRef = useRef<Spark[]>([]); // Stores spark data
-  const startTimeRef = useRef<number | null>(null); // Tracks initial timestamp for animation
 
+  // Menyimpan daftar sparks yang sedang dianimasikan
+  const sparksRef = useRef<Spark[]>([]);
+
+  // Menyimpan waktu mulai animasi global untuk sinkronisasi
+  const startTimeRef = useRef<number | null>(null);
+
+  // Setup canvas agar ukurannya sesuai container induk secara dinamis
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -43,6 +49,7 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
 
     const resizeCanvas = () => {
       const { width, height } = parent.getBoundingClientRect();
+      // Ubah ukuran canvas hanya jika berbeda agar tidak memicu redraw berlebihan
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -51,23 +58,25 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
 
     const handleResize = () => {
       clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(resizeCanvas, 100); // Debounce by 100ms
+      // Debounce resize agar tidak terlalu sering resize saat resize window
+      resizeTimeout = setTimeout(resizeCanvas, 100);
     };
 
-    // Observe size changes
+    // Gunakan ResizeObserver untuk memantau perubahan ukuran elemen induk
     const ro = new ResizeObserver(handleResize);
     ro.observe(parent);
 
-    // Initial sizing
+    // Set ukuran canvas saat mount awal
     resizeCanvas();
 
-    // Cleanup
+    // Cleanup saat unmount
     return () => {
       ro.disconnect();
       clearTimeout(resizeTimeout);
     };
   }, []);
 
+  // Fungsi easing untuk animasi berdasarkan properti easing
   const easeFunc = useCallback(
     (t: number) => {
       switch (easing) {
@@ -78,12 +87,14 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         case "ease-in-out":
           return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         default:
+          // ease-out default (t * (2 - t))
           return t * (2 - t);
       }
     },
     [easing]
   );
 
+  // Efek utama untuk melakukan animasi sparks menggunakan requestAnimationFrame
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -93,31 +104,38 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     let animationId: number;
 
     const draw = (timestamp: number) => {
+      // Simpan waktu mulai animasi pada frame pertama
       if (!startTimeRef.current) {
-        startTimeRef.current = timestamp; // store initial time
+        startTimeRef.current = timestamp;
       }
-      ctx?.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Bersihkan canvas sebelum menggambar frame baru
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Filter sparks yang masih aktif (belum lewat durasi)
       sparksRef.current = sparksRef.current.filter((spark: Spark) => {
         const elapsed = timestamp - spark.startTime;
         if (elapsed >= duration) {
-          // Spark finished its animation
+          // Jika durasi spark habis, hapus dari daftar sparks
           return false;
         }
 
         const progress = elapsed / duration;
         const eased = easeFunc(progress);
 
+        // Hitung jarak spark menjauh dari titik klik dengan easing dan scaling
         const distance = eased * sparkRadius * extraScale;
+
+        // Panjang garis spark berkurang seiring animasi
         const lineLength = sparkSize * (1 - eased);
 
-        // Points for the spark line
+        // Koordinat awal dan akhir garis spark berdasarkan sudut dan jarak
         const x1 = spark.x + distance * Math.cos(spark.angle);
         const y1 = spark.y + distance * Math.sin(spark.angle);
         const x2 = spark.x + (distance + lineLength) * Math.cos(spark.angle);
         const y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
 
-        // Draw the spark line
+        // Gambar garis spark dengan warna dan ketebalan yang ditentukan
         ctx.strokeStyle = sparkColor;
         ctx.lineWidth = 2;
         ctx.beginPath();
@@ -125,14 +143,17 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
         ctx.lineTo(x2, y2);
         ctx.stroke();
 
-        return true;
+        return true; // Pertahankan spark ini di array untuk frame berikutnya
       });
 
+      // Minta frame animasi berikutnya
       animationId = requestAnimationFrame(draw);
     };
 
+    // Mulai animasi
     animationId = requestAnimationFrame(draw);
 
+    // Cleanup animasi saat unmount atau props berubah
     return () => {
       cancelAnimationFrame(animationId);
     };
@@ -146,14 +167,19 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
     extraScale,
   ]);
 
+  // Handler klik pada div pembungkus untuk menambahkan sparks baru
   const handleClick = (e: React.MouseEvent<HTMLDivElement>): void => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // Hitung posisi klik relatif terhadap canvas
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     const now = performance.now();
+
+    // Buat sparks baru dengan sudut yang tersebar merata (360 derajat dibagi sparkCount)
     const newSparks: Spark[] = Array.from({ length: sparkCount }, (_, i) => ({
       x,
       y,
@@ -161,15 +187,18 @@ const ClickSpark: React.FC<ClickSparkProps> = ({
       startTime: now,
     }));
 
+    // Tambahkan sparks baru ke array sparks yang dianimasikan
     sparksRef.current.push(...newSparks);
   };
 
   return (
     <div className="relative w-full h-full" onClick={handleClick}>
+      {/* Canvas untuk menggambar sparks dengan posisi absolute dan pointer-events none supaya klik tidak terganggu */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 pointer-events-none"
       />
+      {/* Render elemen anak */}
       {children}
     </div>
   );

@@ -1,21 +1,23 @@
 import { motion, type Transition } from "framer-motion";
 import { useEffect, useRef, useState, useMemo } from "react";
 
+// Tipe properti untuk komponen BlurText
 type BlurTextProps = {
-  text?: string;
-  delay?: number;
-  className?: string;
-  animateBy?: "words" | "letters";
-  direction?: "top" | "bottom";
-  threshold?: number;
-  rootMargin?: string;
-  animationFrom?: Record<string, string | number>;
-  animationTo?: Array<Record<string, string | number>>;
-  easing?: (t: number) => number;
-  onAnimationComplete?: () => void;
-  stepDuration?: number;
+  text?: string; // Teks yang ingin dianimasikan
+  delay?: number; // Delay animasi antar huruf/kata (dalam milidetik)
+  className?: string; // Kelas tambahan CSS
+  animateBy?: "words" | "letters"; // Animasi berdasarkan kata atau huruf
+  direction?: "top" | "bottom"; // Arah animasi blur (dari atas atau bawah)
+  threshold?: number; // Threshold untuk IntersectionObserver
+  rootMargin?: string; // Root margin untuk IntersectionObserver
+  animationFrom?: Record<string, string | number>; // Properti animasi awal (opsional)
+  animationTo?: Array<Record<string, string | number>>; // Langkah-langkah animasi menuju akhir
+  easing?: (t: number) => number; // Fungsi easing kustom
+  onAnimationComplete?: () => void; // Fungsi callback ketika animasi selesai
+  stepDuration?: number; // Durasi per langkah animasi dalam detik
 };
 
+// Fungsi untuk membuat keyframes dari properti "from" dan array "to"
 const buildKeyframes = (
   from: Record<string, string | number>,
   steps: Array<Record<string, string | number>>
@@ -32,8 +34,9 @@ const buildKeyframes = (
   return keyframes;
 };
 
+// Komponen utama BlurText
 const BlurText: React.FC<BlurTextProps> = ({
-  text = "",
+  text = "", // Default teks kosong jika tidak diberikan
   delay = 200,
   className = "",
   animateBy = "words",
@@ -46,10 +49,13 @@ const BlurText: React.FC<BlurTextProps> = ({
   onAnimationComplete,
   stepDuration = 0.35,
 }) => {
+  // Pisahkan teks menjadi kata-kata atau huruf berdasarkan animateBy
   const elements = animateBy === "words" ? text.split(" ") : text.split("");
-  const [inView, setInView] = useState(false);
-  const ref = useRef<HTMLParagraphElement>(null);
 
+  const [inView, setInView] = useState(false); // Status apakah elemen terlihat di layar
+  const ref = useRef<HTMLParagraphElement>(null); // Referensi elemen <p>
+
+  // Observer untuk memicu animasi ketika elemen masuk viewport
   useEffect(() => {
     if (!ref.current) return;
     const observer = new IntersectionObserver(
@@ -65,6 +71,7 @@ const BlurText: React.FC<BlurTextProps> = ({
     return () => observer.disconnect();
   }, [threshold, rootMargin]);
 
+  // Properti default untuk animasi awal (blur dan geser dari atas/bawah)
   const defaultFrom = useMemo(
     () =>
       direction === "top"
@@ -73,6 +80,7 @@ const BlurText: React.FC<BlurTextProps> = ({
     [direction]
   );
 
+  // Properti default untuk animasi akhir secara bertahap (mengurangi blur)
   const defaultTo = useMemo(
     () => [
       {
@@ -85,11 +93,14 @@ const BlurText: React.FC<BlurTextProps> = ({
     [direction]
   );
 
+  // Gunakan properti kustom jika tersedia, jika tidak gunakan default
   const fromSnapshot = animationFrom ?? defaultFrom;
   const toSnapshots = animationTo ?? defaultTo;
 
   const stepCount = toSnapshots.length + 1;
   const totalDuration = stepDuration * (stepCount - 1);
+
+  // Membuat waktu-waktu (times) untuk setiap step animasi
   const times = Array.from({ length: stepCount }, (_, i) =>
     stepCount === 1 ? 0 : i / (stepCount - 1)
   );
@@ -97,20 +108,23 @@ const BlurText: React.FC<BlurTextProps> = ({
   return (
     <p ref={ref} className={`blur-text ${className} flex flex-wrap`}>
       {elements.map((segment, index) => {
+        // Bangun keyframes untuk setiap huruf/kata
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
+        // Konfigurasi transisi untuk animasi Framer Motion
         const spanTransition: Transition = {
           duration: totalDuration,
           times,
-          delay: (index * delay) / 1000,
+          delay: (index * delay) / 1000, // Konversi delay ke detik
         };
+        // Tambahkan easing kustom jika ada
         (spanTransition as any).ease = easing;
 
         return (
           <motion.span
             key={index}
-            initial={fromSnapshot}
-            animate={inView ? animateKeyframes : fromSnapshot}
+            initial={fromSnapshot} // Nilai awal
+            animate={inView ? animateKeyframes : fromSnapshot} // Animasikan hanya jika terlihat
             transition={spanTransition}
             onAnimationComplete={
               index === elements.length - 1 ? onAnimationComplete : undefined
@@ -120,7 +134,9 @@ const BlurText: React.FC<BlurTextProps> = ({
               willChange: "transform, filter, opacity",
             }}
           >
+            {/* Gunakan spasi khusus agar tidak terpotong */}
             {segment === " " ? "\u00A0" : segment}
+            {/* Tambahkan spasi eksplisit jika animasi per kata */}
             {animateBy === "words" && index < elements.length - 1 && "\u00A0"}
           </motion.span>
         );

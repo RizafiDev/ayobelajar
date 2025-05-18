@@ -1,0 +1,14 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
+@theme {
+  --color-primary: #6a35ff;
+  --color-darkblack: #150b33;
+  --color-cusblack: #150b33;
+  --color-success: #21c28c;
+  --color-flatwhite: #f7f8fd;
+  --color-secondary: #ffaa00;
+}
+* {
+  font-family: "Poppins", sans-serif;
+  scroll-behavior: smooth;
+}

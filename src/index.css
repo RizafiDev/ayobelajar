@@ -2,13 +2,47 @@
 @import url("https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,200..900;1,200..900&display=swap");
 @theme {
   --color-primary: #6a35ff;
+  --color-bgblack: #060606;
   --color-darkblack: #150b33;
   --color-cusblack: #150b33;
   --color-success: #21c28c;
   --color-flatwhite: #f7f8fd;
   --color-secondary: #ffaa00;
+  --color-textblack: #383a3b;
 }
 * {
   font-family: "Poppins", sans-serif;
   scroll-behavior: smooth;
+}
+
+/* animation */
+@keyframes floating {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.floating-element {
+  animation: floating 3s ease-in-out infinite;
+}
+@layer utilities {
+  @keyframes pulse-shadow {
+    0%,
+    100% {
+      filter: drop-shadow(0 0 0px rgba(249, 115, 22, 0.5));
+    }
+    50% {
+      filter: drop-shadow(0 0 10px rgba(249, 115, 22, 0.8));
+    }
+  }
+
+  .animate-pulse-shadow {
+    animation: pulse-shadow 1.5s infinite;
+  }
 }
